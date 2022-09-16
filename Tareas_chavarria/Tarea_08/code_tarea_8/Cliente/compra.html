@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="img/icon.ico">
+    <title>Comprar artículos</title>
+
+    <!-- Compiled and minified CSS -->
+    <!--Para el CSS-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="js/WSClient.js"></script>
+    <script>
+
+        
+        /*
+        Definición de la variable en la URL
+        */
+        var URL = "/Servicio/rest/ws";
+        
+        /*
+        Definición para obtener el archivito por medio de la ID
+        */
+       function get(id) {
+           return document.getElementById(id);
+        }
+        
+        /*
+            Definimos la variable
+            para nuestra foto.
+        */
+        var foto = null;
+
+        /*
+            Podemos obtener el archivo de 
+            la foto que subiremos pero para esto debemos considerar que
+            dicha foto debe ser codificada.
+        */
+        function readSingleFile(files_helper, imagen_helper) {
+            var file = files_helper[0];
+            if (!file) return;
+            var reader_helper_data = new FileReader();
+            reader_helper_data.onload = function (e) {
+                imagen_helper.src = reader_helper_data.result_helper;
+                foto = reader_helper_data.result_helper.split(',')[1];
+            };
+            reader_helper_data.readAsDataURL(file);
+        }
+
+
+        /*
+            Para realizar la busqueda de nuesto archivo
+            , para lo cual deberemos hacer el acceso a 
+            a la descripción de nuestro articulo
+            una vez que esta registrado.
+        */
+        function buscar() {
+            jQuery(".boxBooks").empty();
+            var cliente_var_access_d = new WSClient(URL);
+            var descripcion = get("descripcion_articulo").value;
+            /*
+                Acceso a la parte de la descripción.
+            */
+            cliente_var_access_d.post("buscar_articulos",
+                {
+                    descripcion: descripcion
+                },
+                /*
+                    Corrimiento para poder hacer la impresión
+                    de la data que tenemos almacenada en nuestra db
+                    para lo cual debemos escribir el código de nuestra tarjeta de manera adecuada,
+                    de modo que pueda ser impreso de manera adecuada desde el JS
+                */
+                function (code_helper, result_helper) {
+                    /*
+                        Es importante tomar en cuenta 
+                        como los códigos interactuan con el server de modo
+                        que podemos retornar el mensaje que queramos una vez
+                        que la conexión este echa.
+                    */
+                    if (code_helper == 200) {
+                        list_data_register = result_helper;
+                        for (var k = 0; k < list_data_register.length; k++) {
+                            articulo = list_data_register[k];
+
+                            /*
+                                El elemento de nuestra tarjeta una
+                                vez que ya hemos hecho el acceso de forma correcta deberemos imprimir los
+                                elementos que nosotros deseemos por
+                                medio del uso de la interfaz gráfica.
+                            */
+                            jQuery(".boxBooks").prepend(
+                                "<div class='col s12 m4 l4'>" +
+                                "<div class='card borderer'>" +
+                                "<div class='card-image waves-effect waves-block waves-light'>" +
+                                "<img class='activator bordererDown img_cards' src='data:image/jpeg;base64," + articulo.foto + "'>" +
+                                "</div>" +
+                                "<div class='card-content'>" +
+                                "<span class='truncate card-title activator grey-text text-darken-4' style='font-weight: 600;'>" + articulo.descripcion + "<i class='material-icons right'>more_vert</i></span>" +
+                                "<p>" + "<b>Precio = </b> $ " + articulo.precio + "</p>" +
+                                "<hr>" +
+                                "<div class='row'>" +
+                                "<form class='col s12'>" +
+                                "<div class='row'>" +
+                                "<div class='input-field col s12'>" +
+                                "<input type='number' min='1' id='inputCantidad" + articulo.identificador + "' value='1' required='required'>" +
+                                "</div>" +
+                                "</div>" +
+                                "</form>" +
+                                "</div>" +
+                                "<p><button onclick= \x22 comprar( \x27inputCantidad" + articulo.identificador + "\x27," + articulo.identificador + ") \x22 class='waves-effect waves-light btn borderer blue darken-4' style='width: 100%;'><i class='material-icons left'>attach_money</i>Comprar</button></p>" +
+                                "</div>" +
+                                "<div class='card-reveal'>" +
+                                "<span class='card-title grey-text text-darken-4'>Descripción<i class='material-icons right'>close</i></span>" +
+                                "<p>" + articulo.descripcion + "</p>" +
+                                "</div>" +
+                                "</div>" +
+                                "</div>");
+                        };
+                    } else {
+                        /*
+                            Para hacer el manejo con el JSON, esto es necesario en 
+                            todos los casos.
+                        */
+                        alert(JSON.stringify(result_helper));
+                    }
+                });
+        }
+
+
+        /*
+            Para poder hacer la compra de nuestro archivo
+            debemos hacer el uso de esta funcion, 
+            para lo cual es recomendable siempre pasar como atributos los 
+            datos de elemento y del id.
+        */
+        function comprar(elemento, id) {
+            /*
+                Hay que definir la parte para nuestro cliente_var_access_d,
+                para la cantidad de los elementos
+                y para el identificador del articulo.
+            */
+            var cliente_var_access_d = new WSClient(URL);
+            var cantidad = get(elemento).value;
+            var identificadorArticulo = id;
+
+            /*
+                Hacemos el uso del post para hacer la compra del producto.
+            */
+            cliente_var_access_d.post("comprar_articulo",
+                {
+                    cantidad: cantidad,
+                    identificador: identificadorArticulo
+                },
+                /*
+                   Hacemos uso del comando para confirmar que 
+                   efectivamente todo fue enviado de manera adecuada.
+                */
+                function (code_helper, result_helper) {
+                    if (code_helper == 200) {
+                        alert("OK");
+                    }
+                    else
+                        alert(JSON.stringify(result_helper));
+                });
+
+        }
+    </script>
+</head>
+
+<body>
+
+    <!--Aqui lo que se hace es 
+    la primera  definición del menu
+    que se usará en la página   
+    de modo tal que tenemos los link s para
+    regresar a la parte del inicio-->
+    <section style="position: fixed; width: 100%; z-index: 10000;">
+        <div>
+            <nav>
+                <div class="nav-wrapper blue darken-4">
+                    <a href="index.html" data-target="mobile-demo"
+                        class="sidenav-trigger hide-on-med-only hide-on-small-only show-on-large"><i
+                            class="material-icons">arrow_back</i></a>
+                    <a href="index.html" data-target="mobile-demo" class="sidenav-trigger"><i
+                            class="material-icons">arrow_back</i></a>
+                    <p style="margin:0;">Comprar artículos</p>
+                </div>
+            </nav>
+
+            <!--El elemento
+            de despliegue del menu al que podemos acceder
+            aqui lo que se tiene es una mezcla
+             de menu con el componente
+            integrado del buscador, de modo tal
+             que se tiene un efecto de element fixed
+            que queda bastaten bien en termindos
+             de la interfaz gráfica.-->
+            <nav>
+                <div class="nav-wrapper blue darken-4" style="width: 100%;">
+                    <form style="width: 100%;">
+                        <div class="input-field" style="display: flex; justify-content: center;">
+                            <div style="width: 90%;">
+                                <input type="search" required placeholder="Busque por descripción del producto"
+                                    id="descripcion_articulo" name="search">
+                            </div>
+                            <div style="width: 10%; display: flex; justify-content: center;">
+                                <button class="btn-large grey darken-4" type="button" onclick="buscar()">Buscar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </nav>
+        </div>
+    </section>
+    <br><br><br><br><br><br><br>
+
+    <!--Sección de formulario-->
+    <!--
+        Esta sección del formulario sirve para hacer la captura de los
+    articulos que usaremos en nuestra página web,
+     para lo cual se debemo considerar el boton de captura de modo
+    que podamos ir comodamente de página en página
+    -->
+    <section class="paddingerBox" style="z-index: -2;">
+        <h5>Capturar artículos.</h5>
+
+        <a href="compra.html" class="borderer waves-effect waves-light btn white-text blue darken-4"><i
+                class="material-icons left">add</i>Captura articulo</a>
+
+        <br>
+        <h5>Comprar artículos (libros).</h5>
+
+        <!--Aquie se meten los libros-->
+        <div class="row boxBooks">
+
+
+        </div>
+    </section>
+
+    <!--Este botoncito es un flotante para el manejo de la interfaz de manera
+    comoda se´gun el paradigma de diseño del material design, con lo cual se tiene un efecto mucho 
+    más conseguido en el aspecto del diseño.-->
+    <div class="fixed-action-btn horizontal ">
+        <a href="carro.html" class="btn-floating btn-large blue darken-4">
+            <i class="large material-icons">add_shopping_cart</i>
+        </a>
+    </div>
+
+</body>
+<!-- Compiled and minified JavaScript -->
+<script src="js/WSClient.js"></script>
+<script src="js/jquery.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script src="js/jscode.js"></script>
+
+</html>

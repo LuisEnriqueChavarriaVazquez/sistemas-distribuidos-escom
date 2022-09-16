@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="img/icon.ico">
+    <title>Captura de articulo</title>
+    <!-- Compiled and minified CSS -->
+    <!--Para el CSS-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <script src="js/WSClient.js"></script>
+    <script>
+        
+        /*
+        Definición de la variable en la URL
+        */
+       var URL = "/Servicio/rest/ws";
+       
+       /*
+       Definición para obtener el archivito por medio de la ID
+       */
+      function get(id) {
+          return document.getElementById(id);
+        }
+        
+        /*
+            Definimos la variable
+            para nuestra foto.
+        */
+        var foto = null;
+
+        /*
+            Podemos obtener el archivo de 
+            la foto que subiremos pero para esto debemos considerar que
+            dicha foto debe ser codificada.
+        */
+        function readSingleFile(files_helper, imagen_helper) {
+            var file = files_helper[0];
+            if (!file) return;
+            var reader_helper_look = new FileReader();
+            reader_helper_look.onload = function (e) {
+                imagen_helper.src = reader_helper_look.result;
+                foto = reader_helper_look.result.split(',')[1];
+            };
+            reader_helper_look.readAsDataURL(file);
+        }
+
+        /*
+            En esta parte del código lo
+            que se esta haciendo es que
+            se debe llamar a la función de la alta
+            de modo que se puedan subir los archivos
+            a la base de datos del programa, esta
+            parte es fundamental porque se debe
+            hacer de forma correcta el agregado
+             de las fotografias en los archivos que
+            se han declarado para la maquina virtual 
+            y su posterior depliegue
+        */
+        function alta() {
+            /*
+                Hacemos la típica declaración de 
+                la parte del cliente con precisamente
+                el archivo del cliente y 
+                tambien se debe hacer la parte del identificador o id                
+            */
+            var cliente_helper_var_d = new WSClient(URL);
+            /*
+                Ahora bien, lo que se 
+                debe considerar en esta
+                 parte son los atributos 
+                 y los identificadores
+                que se usaran para poder
+                 hacer la agregación del
+                  contenido de manera correcta.               
+            */
+            var articulo =
+            {
+                identificador: "0",
+                nombre: get("nombre_articulo").value,
+                descripcion:get("descripcion_articulo").value,
+                cantidad: get("cantidad_articulo").value,
+                precio: get("precio_articulo").value,
+                foto: foto
+            };
+            cliente_helper_var_d.post("alta_articulo",
+                {
+                    articulo: articulo
+                },
+                /*
+                    Ahora bien, se debe enviar un mensaje
+                    que para el caso cuando todo
+                     salga bien será simplemente un
+                    ok, aunque pudiera ser cualquier 
+                    otro tipo de respuesta en concreto.              
+                */
+                function (code_helper, result) {
+                    if (code_helper == 200)
+                        alert("OK");
+                    else
+                        alert(JSON.stringify(result));
+                });
+        }
+    </script>
+</head>
+
+<body>
+    <!--
+        Se hace la inclusipon
+        del menu en la parte superior
+        que nos podra llevar de nuevo a la parte inciial 
+        dle programa sin ningun tipo de problema
+    -->
+    <nav>
+        <div class="nav-wrapper blue darken-4">
+            <a href="index.html" data-target="mobile-demo"
+                class="sidenav-trigger hide-on-med-only hide-on-small-only show-on-large"><i
+                    class="material-icons">arrow_back</i></a>
+            <a href="index.html" data-target="mobile-demo" class="sidenav-trigger"><i
+                    class="material-icons">arrow_back</i></a>
+            <p style="margin:0;">Captura de artículo</p>
+        </div>
+    </nav>
+
+    <section class="paddingerBox">
+        <br>
+        <h5>Captura de artículo.</h5>
+
+        <!--Aqui lo que se tienen son las partes 
+            para el formulario de la captura de los
+        elementos o mejor dicho de los articulos 
+        que el usuario quiera agregar-->
+        <div class="row">
+            <form class="col s12 card borderer" style="padding: 50px;">
+                <div class="row">
+                    <!--Nombre de los productos-->
+                    <div class="input-field col s12">
+                        <i class="material-icons prefix">format_quote</i>
+                        <input id="nombre_articulo" required="required" type="text" class="validate">
+                        <label for="nombre_articulo">Nombre del articulo.</label>
+                    </div>
+                    <!--Descripción del producto-->
+                    <div class="input-field col s12">
+                        <i class="material-icons prefix">article</i>
+                        <input id="descripcion_articulo" required="required" type="text" class="validate">
+                        <label for="descripcion_articulo">Descripción del artículo.</label>
+                    </div>
+                    <!--Cantidad del producto-->
+                    <div class="input-field col s6">
+                        <i class="material-icons prefix">format_list_numbered</i>
+                        <input id="cantidad_articulo" required="required" type="number" class="validate">
+                        <label for="cantidad_articulo">Cantidad del almacen.</label>
+                    </div>
+                    <!--Precio del producto-->
+                    <div class="input-field col s6">
+                        <i class="material-icons prefix">attach_money</i>
+                        <input id="precio_articulo" required="required" type="number" class="validate">
+                        <label for="precio_articulo">Precio del artículo.</label>
+                    </div>
+                    <!--Imagen del articulo-->
+                    <div class="col s12" width="100%">
+                        <br>
+                        <div class="alignerCenter">
+                            <img id="alta_imagen" class="borderer  card-3" width="300px"
+                                src="img/card1.jpg"></img><br>
+                            <input type="file" onchange="readSingleFile(files_helper,get('alta_imagen'))" multiple="false" accept="image/*" />
+                        </div>
+                    </div>
+                    <div class="col s12" width="100%" style="display: flex; justify-content: center;">
+                        <button type="button" class="waves-effect waves-light btn-large grey darken-4 bordererPlus" onclick="alta()" style="margin: 50px 0 0 0;"><i class="material-icons left">done</i>Captura
+                            terminada</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!--Sección de los botones de opciones-->
+    <section class="paddingerBox">
+        <h5>Opciones adicionales.</h5>
+        <div class="borderer card cardButtons" style="padding: 30px;">
+            <a href="captura.html" class="waves-effect waves-light btn-large blue darken-4 bordererPlus" style="margin: 3px;"><i
+                    class="material-icons left">add_circle</i>Capturar otro artículo</a>
+            <a href="compra.html" class="waves-effect waves-light btn-large blue darken-4 bordererPlus"
+                style="margin: 3px;"><i class="material-icons left">add_shopping_cart</i>Comprar artículos</a>
+        </div>
+    </section>
+
+    <br><br><br>
+
+</body>
+<!-- Compiled and minified JavaScript -->
+<script src="js/WSClient.js"></script>
+<script src="js/jquery.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script src="js/jscode.js"></script>
+<script src="js/jscodeform.js"></script>
+
+</html>

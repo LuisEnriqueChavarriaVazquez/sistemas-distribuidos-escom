@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="img/icon.ico">
+    <title>Listado de artículos</title>
+
+    <!-- Compiled and minified CSS -->
+    <!--Para el CSS-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/sweetalert2.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="js/WSClient.js"></script>
+
+    <script src="js/sweetalert2.min.js"></script>
+    <script src="js/sweetalert2.all.min.js"></script>
+    <script>
+
+        /*
+            Definición para obtener el archivito por medio de la ID
+        */
+        function get(id) {
+            return document.getElementById(id);
+        }
+        
+        /*
+        Definición de la variable en la URL
+        */
+       var URL = "/Servicio/rest/ws";
+       
+       /*
+           Definimos la variable
+           para nuestra foto.
+       */
+       var foto = null;
+
+        /*
+            Podemos obtener el archivo de 
+            la foto que subiremos pero para esto debemos considerar que
+            dicha foto debe ser codificada.
+        */
+        function readSingleFile(files_helper, imagen_helper) {
+            var file = files_helper[0];
+            if (!file) return;
+            var reader_helper_look = new FileReader();
+
+
+
+            reader_helper_look.onload = function (e) {
+                imagen_helper.src = reader_helper_look.result;
+                foto = reader_helper_look.result.split(',')[1];
+            };
+            reader_helper_look.readAsDataURL(file);
+        }
+
+
+        /*
+            Debemos traer los elementos del carro de compras,
+            para lo cual se hará la invocación del siguiente método
+            de modo tal que podamos hacer el llemado de los 
+            articulos
+        */
+        function traer_carrito() {
+            var cliente = new WSClient(URL);
+            /*
+                No es necesario el uso de elementos o
+                atributos adicionales, para lo cual directamente lo que se debe
+                hacer es entrar para hacer el bucle de modo tal que se
+                pueda hacer el acceso de los elementos en la tarjeta que se imprimira
+            */
+            cliente.post("traer_carrito",
+                {
+
+                },
+                /*
+                    El código de los elementos que se regresara para
+                    a posteriori hacer la impresión de los elementos que 
+                    se han llamado, esto como lo comente en la parte de la compra 
+                    debe hacerse con cuidado de modo tal que el documento en el js
+                    pueda interpretar los elementos del html,
+                    para esto se debe tomar en cuenta que se debe usar la DOM, el cual 
+                    es un concepto básico dentro de la programación en JS.
+                */
+                function (code, result) {
+                    if (code == 200) {
+                        /*
+                            Se hace el acceso para el elemento de la sumatoria y del carrito
+                        */
+                        jQuery(".sumatoria").empty();
+                        jQuery(".carrito").empty();
+                        /*
+                            Se hace la declaración de la lista de elementos,
+                            tambien se hace el seteo de la variable para
+                            el costo total de los productos.
+                        */
+                        lista = result;
+                        var totalidad_costo_libros_adquiridos = 0;
+
+                        /*
+                            Se hace el acceso
+                            para poder entrar en el bucle
+                            de impresión de los elementos
+                            guardados en la base de datos, 
+                            de modo tal que 
+                            se pueda ver en pantalla.
+                        */
+                        for (var i = 0; i < lista.length; i++) {
+                            compra = lista[i];
+                            totalidad_costo_libros_adquiridos = totalidad_costo_libros_adquiridos + compra.costo;
+                            /*
+                                Se accede al elemento de la impresión del
+                                dentro de la parte del carro de las compras.
+                            */
+                            jQuery(".carrito").prepend(
+                                "<div class='col s12 m4 l4'>" +
+                                "<div class='card borderer'>" +
+                                "<div class='card-image waves-effect waves-block waves-light'>" +
+                                "<img class='activator bordererDown' src='data:image/jpeg;base64," + compra.foto + "'>" +
+                                "</div>" +
+                                "<div class='card-content'>" +
+                                "<span class='truncate card-title activator grey-text text-darken-4' style='font-weight: 600;'>" + compra.descripcion + "<i class='material-icons right'>more_vert</i></span>" +
+                                "<hr>" +
+                                "<p><b>Precio</b> <span>" + compra.precio + "</span></p>" +
+                                "<p><b>Compra costo = </b><span>" + compra.costo + "</span></p>" +
+                                "<p><b>Cantidad a comprar = </b><span>" + compra.cantidad + "</span></p>" +
+                                "<hr><br>" +
+                                "<p><button onclick= \x22 eliminar_compra( " + compra.identificador + ") \x22 class='btnElimCompra waves-effect waves-light btn borderer red darken-4 modal-trigger' style='width: 100%;'><i class='material-icons left'>delete</i> Borrar articulo.</button></p>" +
+                                "</div>" +
+                                "<div class='card-reveal'>" +
+                                "<span class='card-title grey-text text-darken-4'>Descripción<i class='material-icons right'>close</i></span>" +
+                                "<p>Esta es una pequeña descripción del libro que estamos visualizando</p>" +
+                                "</div>" +
+                                "</div>" +
+                                "</div>"
+                            );
+
+                        }
+                        /*
+                          Acceso a la parte de la sumatoria para poner el total de los elementos que
+                          hemos comprado, de modo tal que el usuario pueda ver cuanto debera pagar.  
+                        */
+                        jQuery(".sumatoria").prepend("<p style='display: flex; justify-content: center;'>"+"Total = $ " + totalidad_costo_libros_adquiridos + "</p>");
+                    } else {
+                        alert(JSON.stringify(result));
+                    }
+                });
+        }
+
+        /*
+            Se  hace el precargado para mostrar los elementos en la pantalla.   
+        */
+
+        window.onload = traer_carrito;
+
+        /*
+            Aqui lo que tenemos 
+            es la funcion para eliminar los elementos
+            que hemos comprado, para lo
+            cual hemos de enviar el id del elementos que se
+            ha querido comprar de modo que no tengamos ningun
+            tipo de problema porque el id es único,              
+        */
+        function eliminar_compra(id) {
+            /*
+                Hacemos la típica declaración de 
+                la parte del cliente con precisamente
+                el archivo del cliente y 
+                tambien se debe hacer la parte del identificador o id                
+            */
+            var cliente = new WSClient(URL);
+            var identificadorCompra = id;
+
+            /*
+                Aqui se esta usando la
+                parte de la libreria para el 
+                manejo de los mensaje que nosotros            
+                usuaremos para eliminar los elementos
+                de manera que no se eliminen de forma instantanea
+                sino que todo lo contrario, que estos puedan confirmarse
+                de manera adecuada.    
+             */
+            Swal.fire({
+                /*
+                    Se pasan los
+                    parametros para la parte del mensaje que
+                    usare para poder hacer
+                    la confirmación de los elementos.
+                */
+                title: "Eliminación de articulo",
+                text: "¿Quiere eliminar el producto?",
+                showCancelButton: true,
+                confirmButtonColor: '#1b5e20',
+                cancelButtonColor: '#b71c1c',
+                confirmButtonText: "Elimnar",
+                cancelButtonText: "No elimnar"
+
+            }).then((result) => {
+                /*
+                    Ahora se hace la parte
+                    del identificador 
+                    para poder hacer la eliminación de
+                    las compras que hemos hecho.            
+                */
+                if (result.isConfirmed) {
+                    cliente.post("eliminar_compra",
+                        {
+                            identificador: identificadorCompra
+                        },
+                        /*
+                          Si todo sale bien
+                          lo que se hace es la 
+                          ejecución o mejor dicho lo que se 
+                          le conoce directamente como la llamada a 
+                          la función dentro de 
+                          nuestro código una vez que 
+                          la condici´pn se cumple.  
+                        */
+                        function (code, result) {
+                            if (code == 200) {
+                                traer_carrito();
+                            }else
+                                /*
+                                    Se debe hacer uso del comando
+                                    stringfy debido a que estamos 
+                                    haciendo uso de los archivos de tipo
+                                    JSON, para los cual se puede ver como se ha procedido
+                                    en el código.
+                                */
+                                alert(JSON.stringify(result));
+                        });
+                }
+            })
+
+        }
+
+        /*
+            Cuando queremos eliminar algún tipo de carrito
+            de un usuario debemos
+            ejecutar la función que a continuación es descrita, de
+            modo tal que tenemos que hacer lo que
+            a continuación se describe.                    
+        */
+
+        function eliminar_carrito() {   
+
+            /*
+                Se hace una vez más los tipico, que es
+                precisamente el uso de WSC cliente, para lo cual debemos
+                hacer la definición de nuestra variable cliente,
+                tal que podamos acceder al contenido del 
+                archivo de manera sencilla                
+            */
+            var cliente = new WSClient(URL);
+
+            /*
+                Aqui se esta usando la
+                parte de la libreria para el 
+                manejo de los mensaje que nosotros            
+                usuaremos para eliminar los elementos
+                de manera que no se eliminen de forma instantanea
+                sino que todo lo contrario, que estos puedan confirmarse
+                de manera adecuada.    
+             */
+            Swal.fire({
+                title: "Eliminación de todo",
+                text: "¿Quiere eliminar todo?",
+                showCancelButton: true,
+                confirmButtonColor: '#1b5e20',
+                cancelButtonColor: '#b71c1c',
+                confirmButtonText: "Elimnar",
+                cancelButtonText: "No elimnar"
+
+            }).then((result) => {
+                 /*
+                    Ahora se hace la parte
+                    del identificador 
+                    para poder hacer la eliminación de
+                    las compras que hemos hecho.            
+                */
+                if (result.isConfirmed) {
+                    cliente.post("eliminar_carrito",
+                        {
+
+                        },
+                        /*
+                          Si todo sale bien
+                          lo que se hace es la 
+                          ejecución o mejor dicho lo que se 
+                          le conoce directamente como la llamada a 
+                          la función dentro de 
+                          nuestro código una vez que 
+                          la condici´pn se cumple.  
+                        */
+                        function (code, result) {
+                            if (code == 200) {
+                                traer_carrito();
+                            }
+                            else
+                            /*
+                                Se debe hacer uso del comando
+                                stringfy debido a que estamos 
+                                haciendo uso de los archivos de tipo
+                                JSON, para los cual se puede ver como se ha procedido
+                                en el código.
+                            */
+                                alert(JSON.stringify(result));
+                        });
+                }
+            })
+
+        }
+
+    </script>
+</head>
+
+<body>
+    <!--Aqui lo que se hace es 
+    la primera  definición del menu
+    que se usará en la página   
+    de modo tal que tenemos los link s para
+    regresar a la parte del inicio-->
+    <section style="position: fixed; width: 100%; z-index: 10000;">
+        <div>
+            <nav>
+                <div class="nav-wrapper blue darken-4">
+                    <a href="index.html" data-target="mobile-demo"
+                        class="sidenav-trigger hide-on-med-only hide-on-small-only show-on-large"><i
+                            class="material-icons">arrow_back</i></a>
+                    <a href="index.html" data-target="mobile-demo" class="sidenav-trigger"><i
+                            class="material-icons">arrow_back</i></a>
+                    <p style="margin:0;">Carrito de artículos</p>
+                </div>
+            </nav>
+        </div>
+    </section>
+    <br><br>
+
+    <!--Sección de formulario-->
+    <section class="paddingerBox" style="z-index: -2;">
+        <br>
+        <br>
+        <br>
+        <h5>Listados de artículos (libros).</h5>
+
+        <!--Aqui lo que se tiene
+        es la parte del carrito de compras
+        en donde podemos ver lo que se ha pedido
+        para poder hacer algún tipo de 
+        compra de libros, de modo tal que
+        se pueda hacer un listado de tarjetas con una
+        grid dado por el materialize.-->
+        <div class="row carrito">
+
+        </div>
+    </section>
+
+    <!--Aqui lo que se tiene es la
+         tarjeta de la sumatoria en donde se vera
+    el costo total de los elementos 
+    que se han comprado, de modo tal que se
+    puedan apreciar en el momento-->
+    <div class="sumatoria card card-3 blue darken-4 bordererPlus"
+        style="display: flex; justify-content: center; padding: 20px 30px 20px 30px; width: 200px; font-size: 20px; color: aliceblue; margin-left: 30px;">
+
+    </div>
+
+    <!--Lo que se incluyo en esta parte
+         fue un botoncito para la 
+         eliminación de los elementos
+        que se tienen dentro del carrito,
+         de modo que podemos 
+         hacer el barrido de
+        las partes que se han 
+        agregado en la aplicaci´n..-->
+    <div class="fixed-action-btn horizontal ">
+        <a onclick="eliminar_carrito()" class="btn-floating btn-large red darken-4">
+            <i class="large material-icons">delete_sweep</i>
+        </a>
+    </div>
+
+</body>
+<!--Footer de la página en donde se incluyen los js.-->
+<!-- Compiled and minified JavaScript -->
+<script src="js/WSClient.js"></script>
+<script src="js/jquery.js"></script>
+<script src="js/sweetalert2.min.js"></script>
+<script src="js/sweetalert2.all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script src="js/jscode.js"></script>
+
+</html>

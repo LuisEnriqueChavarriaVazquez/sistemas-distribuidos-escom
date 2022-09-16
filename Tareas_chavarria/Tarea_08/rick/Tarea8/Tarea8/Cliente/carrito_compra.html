@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+        charset="utf-8">
+    <link rel="stylesheet" href="nav_bar_carrito.css">
+    <link rel="stylesheet" href="anaquel_carrito.css">
+    <link rel="stylesheet" href="listaCompra.css">
+    <script src='/WSClient.js'></script>
+    <script src="jquery.min.js"></script>
+    <script src="sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="sweetalert2.min.css">
+    <script src="sweetalert2.all.min.js"></script>
+    <script>
+
+        var foto = null;
+
+        var URL = "/Servicio/rest/ws";
+
+        function get(id) {
+            return document.getElementById(id);
+        }
+
+
+        function readSingleFile(files, imagen) {
+            var file = files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                imagen.src = reader.result;
+                // reader.result incluye al principio: "data:image/jpeg;base64,"
+                foto = reader.result.split(',')[1];
+            };
+            reader.readAsDataURL(file);
+        }
+
+
+        function traer_carrito() {
+            var cliente = new WSClient(URL);
+            cliente.post("traer_carrito",
+                {
+
+                },
+                function (code, result) {
+                    if (code == 200) {
+                        jQuery("#listaCompras").empty();
+                        jQuery("#costoTotal").empty();
+                        lista = result;
+                        var costoTotal = 0;
+
+                        for (var i = 0; i < lista.length; i++) {
+                            compra = lista[i];
+                            costoTotal = costoTotal + compra.costo;
+                            jQuery("#listaCompras").prepend(
+                                " <li class='compraElemento'>   " +
+                                "<p>Nombre:" + compra.nombre + "</p>" +
+                                "<p>Descripcion:" + compra.descripcion + "</p>" +
+                                "<p>Precio:" + compra.precio + "</p>" +
+                                " <p>Cantidad:" + compra.cantidad + "</p>" +
+                                " <p>Costo:" + compra.costo + "</p>" +
+                                "<p><img class='imgCompra' src='data:image/jpeg;base64," + compra.foto + "'></p>" +
+                                "<button class='btnElimCompra'   onclick= \x22 eliminar_compra( " + compra.identificador + ") \x22 >Quitar</button>");
+
+                        }
+                        jQuery("#costoTotal").prepend("<p>Costo total:" + costoTotal + "</p>");
+                        ;
+                    }
+                    else
+                        alert(JSON.stringify(result));
+                });
+        }
+
+        window.onload = traer_carrito;
+
+        function eliminar_compra(id) {
+            var cliente = new WSClient(URL);
+            var identificadorCompra = id;
+            Swal.fire({
+                title: "Eliminación de la compra",
+                text: "Seguro que desea eliminar la compra?",
+                showCancelButton: true,
+                confirmButtonColor: '#f7505a',
+                cancelButtonColor: '#f7505a',
+                confirmButtonText: "SI",
+                cancelButtonText: "NO"
+
+            }).then((result) => {
+                if(result.isConfirmed){
+                cliente.post("eliminar_compra",
+                    {
+                        identificador: identificadorCompra
+                    },
+                    function (code, result) {
+                        if (code == 200) {
+                            traer_carrito();
+                        }
+                        else
+                            alert(JSON.stringify(result));
+                    });
+                }
+            })
+
+
+        }
+
+        function eliminar_carrito() {
+
+            var cliente = new WSClient(URL);
+
+            Swal.fire({
+                title: "Eliminación del carrito",
+                text: "Seguro que desea eliminar todas las compras?",
+                showCancelButton: true,
+                confirmButtonColor: '#f7505a',
+                cancelButtonColor: '#f7505a',
+                confirmButtonText: "SI",
+                cancelButtonText: "NO"
+
+            }).then((result) => 
+             
+            {
+                if (result.isConfirmed){
+                cliente.post("eliminar_carrito",
+                    {
+
+                    },
+                    function (code, result) {
+                        if (code == 200) {
+                            traer_carrito();
+                        }
+                        else
+                            alert(JSON.stringify(result));
+                    });
+                }
+            })
+
+        }
+
+    </script>
+
+</head>
+
+<body>
+
+    <div class="topnav">
+        <a class="active">Carrito compras</a>
+        <a href="compra_articulo.html">Regresar</a>
+        <a onclick="eliminar_carrito()">Eliminar carrito</a>
+
+    </div>
+    <div class="contenedor">
+        <ul id="listaCompras">
+            <!--      <li class="compraElemento">
+                    <p>Nombre:</p>
+                    <p>Descripcion:</p>
+                    <p>Precio:</p>
+                    <p>Cantidad:</p>
+                    <p>Costo:</p>
+                    <p><img class="imgCompra" src="food_background.jpg"></p> 
+                    <button class="btnElimCompra">Quitar</button>
+                </li>
+            -->
+        </ul>
+        <div id="costoTotal"></div>
+
+
+
+    </div>
+
+</body>
+
+</html>

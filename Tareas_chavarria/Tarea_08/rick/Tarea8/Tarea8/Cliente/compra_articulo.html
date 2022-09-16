@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+        charset="utf-8">
+    <link rel="stylesheet" href="nav_bar_comprar.css">
+    <link rel="stylesheet" href="anaquel.css">
+    <link rel="stylesheet" href="articulos.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src='/WSClient.js'></script>
+    <script src="jquery.min.js"></script>
+    <script>
+
+        var foto = null;
+
+        var URL = "/Servicio/rest/ws";
+
+        function get(id) {
+            return document.getElementById(id);
+        }
+
+
+        function readSingleFile(files, imagen) {
+            var file = files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                imagen.src = reader.result;
+                // reader.result incluye al principio: "data:image/jpeg;base64,"
+                foto = reader.result.split(',')[1];
+            };
+            reader.readAsDataURL(file);
+        }
+
+
+        function buscar() {
+            jQuery(".contenedor").empty();
+            var cliente = new WSClient(URL);
+            var descripcion = get("descripcion_articulo").value;
+            cliente.post("buscar_articulos",
+                {
+                    descripcion: descripcion
+                },
+                function (code, result) {
+                    if (code == 200) {
+
+                        lista = result;
+                       for (var i = 0; i < lista.length; i++) {
+                            articulo = lista[i];
+                           
+                            jQuery(".contenedor").prepend(
+                                    "<div class='card'>"+
+                                        "<img class='img_cards' src='data:image/jpeg;base64,"+articulo.foto+"'>"+
+                                        "<h1>"+articulo.nombre+"</h1>"+
+                                        "<p class='price'>$"+articulo.precio+"</p>"+
+                                        "<input type='number' min='1' id='inputCantidad"+articulo.identificador+"'  value='1' required='required'>"+
+                                        " <p>"+articulo.descripcion+"</p>"+
+                                        "<p><button  onclick= \x22 comprar( \x27inputCantidad"+articulo.identificador+"\x27,"+articulo.identificador+") \x22 >Compra</button></p>"+
+                            "  </div>   ");
+                              
+                            
+                           // alert(articulo.identificador+":"+articulo.nombre+","+articulo.descripcion+","+articulo.precio);
+                        }
+                       ;
+                    }
+                    else {
+                        alert(JSON.stringify(result));
+                    }
+                });
+        }
+
+
+        function comprar(elemento,id){
+           var cliente = new WSClient(URL);
+           var cantidad = get(elemento).value;
+           var identificadorArticulo=id;
+           cliente.post("comprar_articulo",
+                {
+                    cantidad: cantidad,
+                    identificador: identificadorArticulo
+                },
+                function (code, result) {
+                    if (code == 200){
+                        alert("OK");
+                    }
+                    else
+                        alert(JSON.stringify(result));
+                });
+
+        }
+    </script>
+</head>
+
+<body>
+
+    <div class="topnav">
+        <a class="active">Compras</a>
+        <a href="tienda_base.html">Regresar</a>
+        <a href="carrito_compra.html">Carrito de compra</a>
+        <div class="search-container">
+            <form a>
+                <input type="text" placeholder="Descripcion a buscar" id="descripcion_articulo" name="search">
+                <button type="button"  onclick="buscar()" ><i class="fa fa-search"></i></button>
+            </form>
+        </div>
+    </div>
+    <div class="contenedor">
+    
+       <!-- <div class="card">
+            <img src="usuario_sin_foto.png" alt="Denim Jeans" style="width:100%">
+            <h1>Tailored Jeans</h1>
+            <p class="price">$19.99</p>
+            <p>Some text about the jeans..</p>
+            <p><button>Add to Cart</button></p>
+          </div>-->
+          
+
+    </div>
+
+
+</body>
+</html>

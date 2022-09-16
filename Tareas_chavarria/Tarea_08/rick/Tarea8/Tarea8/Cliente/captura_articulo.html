@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+        charset="utf-8">
+    <link rel="stylesheet" href="form_articulo.css">
+    <script src='/WSClient.js'></script>
+    <script>
+        var foto = null;
+
+        var URL = "/Servicio/rest/ws";
+
+        function get(id) {
+            return document.getElementById(id);
+        }
+
+
+        function readSingleFile(files, imagen) {
+            var file = files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                imagen.src = reader.result;
+                // reader.result incluye al principio: "data:image/jpeg;base64,"
+                foto = reader.result.split(',')[1];
+            };
+            reader.readAsDataURL(file);
+        }
+
+
+        function alta() {
+            var cliente = new WSClient(URL);
+            var articulo =
+            {
+                identificador: "0",
+                nombre: get("nombre_articulo").value,
+                descripcion:get("descripcion_articulo").value,
+                cantidad: get("cantidad_articulo").value,
+                precio: get("precio_articulo").value,
+                foto: foto
+            };
+            cliente.post("alta_articulo",
+                {
+                    articulo: articulo
+                },
+                function (code, result) {
+                    if (code == 200)
+                        alert("OK");
+                    else
+                        alert(JSON.stringify(result));
+                });
+        }
+
+
+    </script>
+</head>
+
+<body>
+    <div class="center">
+        <h1>Nuevo artículo</h1>
+        <form>
+            <div class="inputbox">
+                <input type="text" id="nombre_articulo" required="required">
+                <span>Nombre</span>
+            </div>
+            <div class="inputbox" >
+                <input type="text" id="descripcion_articulo" required="required" style="height:80px">
+                <span>Descripción</span>
+            </div>
+            <div class="inputbox" style="margin-top:100px">
+                <input type="text" id="cantidad_articulo" required="required">
+                <span>Cantidad</span>
+            </div>
+            <div class="inputbox">
+                <input type="text" id="precio_articulo" required="required">
+                <span>Precio</span>
+            </div>
+            <div class="inputbox">
+                <input type="file" onchange="readSingleFile(files,get('alta_imagen'))" multiple="false"
+                    accept="image/*" />
+                <span>Imagen</span>
+            </div>
+            <div class="inputbox">
+                <img id="alta_imagen" width="100px" src="usuario_sin_foto.png">
+            </div>
+            <br>
+            <div class="inputbox"  style="margin-top:60px">
+                <input type="button" value="ingresar" onclick="alta()">
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>

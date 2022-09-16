@@ -1,0 +1,14 @@
+cd C:\Users\luise\Desktop\OCTAVO SEMESTRE\Distribuidos\Tareas_team_dos\Tarea_02
+java tarea_2_token 0 localhost
+
+cd C:\Users\luise\Desktop\OCTAVO SEMESTRE\Distribuidos\Tareas_team_dos\Tarea_02
+java tarea_2_token 1 localhost
+
+cd C:\Users\luise\Desktop\OCTAVO SEMESTRE\Distribuidos\Tareas_team_dos\Tarea_02
+java tarea_2_token 2 localhost
+
+cd C:\Users\luise\Desktop\OCTAVO SEMESTRE\Distribuidos\Tareas_team_dos\Tarea_02
+java tarea_2_token 3 localhost
+
+------
+modificar la validacion

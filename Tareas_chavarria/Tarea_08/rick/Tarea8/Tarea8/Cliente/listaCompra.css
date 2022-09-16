@@ -1,0 +1,28 @@
+.compraElemento {
+    margin: 20px;
+    background-color: #fff;
+    padding: 10px;
+    list-style-type: none;
+
+}
+
+.compraElemento{
+    display: flex; 
+    justify-content:space-between;
+    flex-wrap: wrap;
+    align-items:center;
+}
+
+.imgCompra{
+    height:80px;
+    width: 80px;
+}
+
+.btnElimCompra{
+    background-color: rgb(199, 23, 23);
+    color: #fff;
+    border: none;
+    text-align: center;
+  text-decoration: none;
+  padding: 15px 32px;
+}

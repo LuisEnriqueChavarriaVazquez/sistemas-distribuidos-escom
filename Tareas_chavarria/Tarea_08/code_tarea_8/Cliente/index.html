@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!--
+
+        En esta parte de la página lo que se hace es la
+        implementación del una tienda de libros,
+        lo que estamos viendo es la página de introducción en 
+        donde tenemos además un pequeño menu en donde podemos navegar, el 
+        cual esta optimisado para dispositivos móviles.
+
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="img/icon.ico">
+    <title>Pagina principal</title>
+
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+
+<body>
+
+    <!--
+
+        Primera parte del menú
+
+    -->
+
+    <nav>
+        <div class="nav-wrapper blue darken-4">
+            <a href="#" data-target="mobile-demo"
+                class="sidenav-trigger hide-on-med-only hide-on-small-only show-on-large"><i
+                    class="material-icons">menu</i></a>
+            <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+            <p style="margin:0;">Página de libros.</p>
+            <ul class="right hide-on-med-and-down">
+                <li><a href="captura.html" class="waves-effect waves-light btn white-text blue darken-3"><i
+                            class="material-icons left">add_circle</i>Captura de artículo</a></li>
+                <li><a href="compra.html" class="waves-effect waves-light btn white-text blue darken-3"><i
+                            class="material-icons left">add_shopping_cart</i>Compra de artículo</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!--
+
+        Menú adaptado para el costado de la pantalla
+
+    -->
+
+    <ul class="sidenav" id="mobile-demo">
+        <li>
+            <div class="user-view">
+                <div class="background">
+                    <img src="img/sidenav.jpg" width="450px">
+                </div>
+                <a href="#user"><img class="circle"
+                        src="https://static.platzi.com/media/avatars/avatars/luis-enrique-chavarria-vazquez_8d2a1bf2-84d8-4bba-9461-cf55255f6d5d"></a>
+                <a href="#name"><span class="white-text name">Luis Enrique Chavarría Vázquez</span></a>
+                <a href="#email"><span class="white-text email">Tarea 8.</span></a>
+            </div>
+        </li>
+        <li><a href="captura.html"><i class="material-icons">add_circle</i>Captura de artículo</a></li>
+        <li><a href="compra.html"><i class="material-icons">add_shopping_cart</i>Compra de artículo</a></li>
+    </ul>
+
+
+    <!--
+
+        Parte con los botones para ir a las 
+        otras secciones.
+
+    -->
+    <!--Sección de formulario-->
+    <section class="paddingerBox">
+        <br>
+        <h5>Página principal.</h5>
+        <div class="row">
+            <!--Primera columna-->
+            <div class="col s12 m6">
+                <div class="card borderer">
+                    <div class="card-image">
+                        <img src="img/card1.jpg" class="bordererDown">
+                        <span class="card-title">Captura de artículo.</span>
+                        <a href="captura.html" class="btn-floating halfway-fab waves-effect waves-light blue darken-3"><i
+                                class="material-icons">arrow_forward</i></a>
+                    </div>
+                    <div class="card-content">
+                        <p>Capture artículos (libros) en el inventario de la tienda y agregue los datos de los productos.</p>
+                    </div>
+                </div>
+            </div>
+            <!--Segunda columna-->
+            <div class="col s12 m6">
+                <div class="card borderer">
+                    <div class="card-image">
+                        <img src="img/card2.jpg" class="bordererDown">
+                        <span class="card-title">Compra de artículo.</span>
+                        <a href="compra.html" class="btn-floating halfway-fab waves-effect waves-light blue darken-3"><i
+                                class="material-icons">arrow_forward</i></a>
+                    </div>
+                    <div class="card-content">
+                        <p>Compre artículos que hayan sido previamente agregados.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col s12">
+                <div class="card blue darken-4 borderer">
+                  <div class="card-content white-text">
+                    <span class="card-title">Tipo de tienda.</span>
+                    <p>En la siguiente "Tarea 8" he realizado una pequeña tienda con temática de libros.</p>
+                    <br>
+                  </div>
+                </div>
+              </div>
+        </div>
+    </section>
+
+</body>
+<!-- Compiled and minified JavaScript -->
+<script src="js/jquery.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script src="js/jscode.js"></script>
+
+</html>
